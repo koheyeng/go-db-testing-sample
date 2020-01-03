@@ -1,4 +1,4 @@
-package main
+package dbtest
 
 import (
 	"encoding/json"
@@ -12,6 +12,8 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/ory/dockertest"
 	"github.com/ory/dockertest/docker"
+
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
 
 var (
@@ -22,7 +24,7 @@ var (
 
 func SetTestData(db *gorm.DB, file string, v interface{}) error {
 	// Read test data files
-	g, err := ioutil.ReadFile(filepath.Join("", file+".json"))
+	g, err := ioutil.ReadFile(filepath.Join("testdata", file+".json"))
 	if err != nil {
 		return fmt.Errorf("failed reading %s.json: %s", file, err)
 	}
@@ -42,7 +44,7 @@ func SetTestData(db *gorm.DB, file string, v interface{}) error {
 
 func SetUpTestContainerPostgres(args []string) (*gorm.DB, func()) {
 	var err error
-	pool, err := dockertest.NewPool("")
+	pool, err = dockertest.NewPool("")
 	if err != nil {
 		log.Fatalf("Could not creates a new pool: %s", err)
 	}
@@ -71,7 +73,7 @@ func SetUpTestContainerPostgres(args []string) (*gorm.DB, func()) {
 
 	if err := pool.Retry(func() error {
 		connStr := fmt.Sprintf("host=%s port=%s user=%s sslmode=%s password=%s", address, "5433", "postgres", "disable", "password")
-		dbConn, err := gorm.Open("postgres", connStr)
+		dbConn, err = gorm.Open("postgres", connStr)
 		if err != nil {
 			return err
 		}
